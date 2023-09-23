@@ -1,18 +1,10 @@
-#include <TensorFlowLite.h>
-
-#include <TensorFlowLite.h>
-
-#include <TensorFlowLite.h>
-
-#include <TensorFlowLite.h>
-
 /**
  * Test sinewave neural network model
- * 
+ *
  * Author: Pete Warden
  * Modified by: Shawn Hymel
  * Date: March 11, 2020
- * 
+ *
  * Copyright 2019 The TensorFlow Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +12,7 @@
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,7 +31,7 @@
 #include "sine_model.h"
 
 // Figure out what's going on in our model
-#define DEBUG 1
+#define DEBUG 0
 
 // Built in LED
 #define RED 22
@@ -48,17 +40,18 @@
 
 // Some settings
 constexpr int led_pin = GREEN;
-constexpr float pi = 3.14159265;                  // Some pi
-constexpr float freq = 0.5;                       // Frequency (Hz) of sinewave
-constexpr float period = (1 / freq) * (1000000);  // Period (microseconds)
+constexpr float pi = 3.14159265;                 // Some pi
+constexpr float freq = 0.5;                      // Frequency (Hz) of sinewave
+constexpr float period = (1 / freq) * (1000000); // Period (microseconds)
 
 // TFLite globals, used for compatibility with Arduino-style sketches
-namespace {
-  tflite::ErrorReporter* error_reporter = nullptr;
-  const tflite::Model* model = nullptr;
-  tflite::MicroInterpreter* interpreter = nullptr;
-  TfLiteTensor* model_input = nullptr;
-  TfLiteTensor* model_output = nullptr;
+namespace
+{
+  tflite::ErrorReporter *error_reporter = nullptr;
+  const tflite::Model *model = nullptr;
+  tflite::MicroInterpreter *interpreter = nullptr;
+  TfLiteTensor *model_input = nullptr;
+  TfLiteTensor *model_output = nullptr;
 
   // Create an area of memory to use for input, output, and other TensorFlow
   // arrays. You'll need to adjust this by combiling, running, and looking
@@ -67,11 +60,13 @@ namespace {
   uint8_t tensor_arena[kTensorArenaSize];
 } // namespace
 
-void setup() {
+void setup()
+{
 
   // Wait for Serial to connect
 #if DEBUG
-  while(!Serial);
+  while (!Serial)
+    ;
 #endif
 
   // Let's make an LED vary in brightness
@@ -83,9 +78,11 @@ void setup() {
 
   // Map the model into a usable data structure
   model = tflite::GetModel(sine_model);
-  if (model->version() != TFLITE_SCHEMA_VERSION) {
+  if (model->version() != TFLITE_SCHEMA_VERSION)
+  {
     error_reporter->Report("Model version does not match Schema");
-    while(1);
+    while (1)
+      ;
   }
 
   // Pull in only needed operations (should match NN layers)
@@ -96,14 +93,16 @@ void setup() {
 
   // Build an interpreter to run the model
   static tflite::MicroInterpreter static_interpreter(
-    model, micro_mutable_op_resolver, tensor_arena, kTensorArenaSize);
+      model, micro_mutable_op_resolver, tensor_arena, kTensorArenaSize);
   interpreter = &static_interpreter;
 
   // Allocate memory from the tensor_arena for the model's tensors
   TfLiteStatus allocate_status = interpreter->AllocateTensors();
-  if (allocate_status != kTfLiteOk) {
+  if (allocate_status != kTfLiteOk)
+  {
     error_reporter->Report("AllocateTensors() failed");
-    while(1);
+    while (1)
+      ;
   }
 
   // Assign model input and output buffers (tensors) to pointers
@@ -125,7 +124,8 @@ void setup() {
 #endif
 }
 
-void loop() {
+void loop()
+{
 
 #if DEBUG
   unsigned long start_timestamp = micros();
@@ -143,7 +143,8 @@ void loop() {
 
   // Run inference
   TfLiteStatus invoke_status = interpreter->Invoke();
-  if (invoke_status != kTfLiteOk) {
+  if (invoke_status != kTfLiteOk)
+  {
     error_reporter->Report("Invoke failed on input: %f\n", x_val);
   }
 
